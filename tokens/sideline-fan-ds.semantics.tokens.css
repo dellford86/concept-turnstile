@@ -1,0 +1,126 @@
+@import "./sideline-fan-ds.tokens.css";
+@import "./sideline-fan-ds.brand.tokens.css";
+
+/*
+ * Sideline Fan Design System — semantic tokens
+ * Source: sideline-fanDS--semantics.Light Mode.tokens.json / .Dark Mode.tokens.json,
+ * sideline-fanDS--typography.tokens.json (Figma variables)
+ * Depends on the primitive tokens in sideline-fan-ds.tokens.css and the brand tokens in
+ * sideline-fan-ds.brand.tokens.css (both imported above).
+ *
+ * Three tiers, matching the Figma variable structure:
+ *   1. Primitives  (sideline-fan-ds.tokens.css)        — raw color/spacing/type-scale values
+ *   2. Brand       (sideline-fan-ds.brand.tokens.css)  — one mode per team, switched via [data-team]
+ *   3. Semantic    (--background-*, --foreground-*, --outline-*, --a11y-*, --spacing-*, --text-*)
+ *      — mode-aware where relevant, aliases tiers 1 & 2
+ *
+ * Usage: :root holds Light Mode values by default. Add data-theme="dark" to <html>
+ * (or any ancestor) to switch to Dark Mode overrides. data-team and data-theme are
+ * independent — any team renders correctly in either mode. --text-*, --spacing-*, and
+ * --a11y-* are mode-independent.
+ */
+
+:root {
+  /* Background — Light Mode (default) */
+  --background-surface: var(--color-alpha-white-100);
+  --background-surface-light: var(--color-black-400);
+  --background-interactive: var(--brand-interactive);
+  --background-interactive-light: var(--brand-interactive-light);
+  --background-interactive-disabled: var(--color-black-400);
+  --background-accent: var(--brand-accent);
+  --background-muted-light: var(--color-alpha-white-16);
+  --background-error: var(--color-utility-error);
+  --background-muted-dark: var(--color-alpha-black-16);
+
+  /* Foreground — Light Mode (default) */
+  --foreground-link: var(--brand-interactive);
+  --foreground-brand-accent: var(--brand-accent);
+  --foreground-light-pr: var(--color-black-100);
+  --foreground-light-secondary: var(--color-black-200);
+  --foreground-light-disabled: var(--color-black-300);
+  --foreground-dark-primary: var(--color-black-100);
+  --foreground-dark-secondary: var(--color-black-200);
+  --foreground-dark-disabled: var(--color-alpha-black-24);
+  --foreground-error: var(--color-utility-error);
+
+  /* Outline — Light Mode (default) */
+  --outline-interactive: var(--brand-interactive);
+  --outline-interactive-pressed: var(--brand-interactive-light);
+  --outline-interactive-focused: var(--brand-interactive-light);
+  --outline-accent: var(--brand-accent);
+  --outline-light: var(--color-black-400);
+  --outline-light-pressed: var(--color-black-100);
+  --outline-light-focused: var(--color-alpha-white-100);
+  --outline-dark: var(--color-black-400);
+  --outline-dark-pressed: var(--color-black-100);
+  --outline-dark-focused: var(--color-black-100);
+  --outline-error: var(--color-utility-error);
+
+  /* A11y — mode-independent */
+  --a11y-on-interactive: var(--brand-a11y-on-interactive);
+  --a11y-on-accent: var(--brand-a11y-on-accent);
+
+  /* Spacing — mode-independent */
+  --spacing-none: var(--spacing-0);
+  --spacing-xs: var(--spacing-2);
+  --spacing-sm: var(--spacing-4);
+  --spacing-med: var(--spacing-8);
+  --spacing-lrg: var(--spacing-16);
+  --spacing-xl: var(--spacing-24);
+  --spacing-xxl: var(--spacing-40);
+
+  /* Typography — display */
+  --text-display-50-font-size: var(--font-size-80);
+  --text-display-50-line-height: var(--line-height-88);
+  --text-display-100-font-size: var(--font-size-48);
+  --text-display-100-line-height: var(--line-height-56);
+  --text-display-200-font-size: var(--font-size-40);
+  --text-display-200-line-height: var(--line-height-48);
+  --text-display-300-font-size: var(--font-size-32);
+  --text-display-300-line-height: var(--line-height-40);
+
+  /* Typography — heading */
+  --text-heading-xxl-font-size: var(--font-size-28);
+  --text-heading-xxl-line-height: var(--line-height-32);
+  --text-heading-xl-font-size: var(--font-size-24);
+  --text-heading-xl-line-height: var(--line-height-28);
+  --text-heading-l-font-size: var(--font-size-20);
+  --text-heading-l-line-height: var(--line-height-24);
+  --text-heading-m-font-size: var(--font-size-16);
+  --text-heading-m-line-height: var(--line-height-20);
+  --text-heading-s-font-size: var(--font-size-14);
+  --text-heading-s-line-height: var(--line-height-18);
+  --text-heading-xs-font-size: var(--font-size-12);
+  --text-heading-xs-line-height: var(--line-height-16);
+
+  /* Typography — body (aliases heading sizes, per source file) */
+  --text-body-l-font-size: var(--text-heading-m-font-size);
+  --text-body-l-line-height: var(--text-heading-m-line-height);
+  --text-body-m-font-size: var(--text-heading-s-font-size);
+  --text-body-m-line-height: var(--text-heading-s-line-height);
+  --text-body-s-font-size: var(--text-heading-xs-font-size);
+  --text-body-s-line-height: var(--text-heading-xs-line-height);
+
+  /* Typography — button (font-size aliases heading; line-height is independently set,
+     looser than heading's, for tap-target comfort) */
+  --text-button-l-font-size: var(--text-heading-m-font-size);
+  --text-button-l-line-height: var(--line-height-24);
+  --text-button-m-font-size: var(--text-heading-s-font-size);
+  --text-button-m-line-height: var(--line-height-20);
+}
+
+[data-theme="dark"] {
+  /* Background — Dark Mode overrides */
+  --background-surface: var(--brand-bg);
+  --background-surface-light: var(--brand-bg-light);
+  --background-interactive-disabled: var(--brand-bg-light);
+
+  /* Foreground — Dark Mode overrides */
+  --foreground-light-pr: var(--color-alpha-white-100);
+  --foreground-light-secondary: var(--color-alpha-white-64);
+  --foreground-light-disabled: var(--color-alpha-white-64);
+
+  /* Outline — Dark Mode overrides */
+  --outline-light: var(--color-alpha-white-16);
+  --outline-light-pressed: var(--color-alpha-white-100);
+}

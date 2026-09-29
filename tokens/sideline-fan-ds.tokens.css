@@ -1,0 +1,97 @@
+/*
+ * Sideline Fan Design System — primitive tokens
+ * Source: sideline-fanDS--primitives.tokens.json, sideline-fanDS--typography.tokens.json
+ * (Figma variables, Mode 1)
+ * Regenerate by hand if the Figma file's primitives change — not build-generated.
+ *
+ * NOTE: brand.primary/secondary/tertiary are all #FFFFFF in the source file.
+ * Confirm in Figma whether these are placeholders before shipping against them.
+ *
+ * NOTE: font-size/line-height are named by their raw px value (deduplicated across the
+ * source file's display/heading/body/button groups) — those group names are themselves
+ * the semantic layer, defined in sideline-fan-ds.semantics.tokens.css.
+ *
+ * NOTE: font-weight in the source file is a named style keyword ("black"/"semibold"/
+ * "regular"), not a CSS font-weight number — mapped here to the standard numeric
+ * equivalents (900/600/400) so the token is directly usable in `font-weight`.
+ *
+ * NOTE: only the "Figtree" font-family was carried over from the source file, which
+ * also defines Proxima Nova, Poppins, and Barlow.
+ */
+
+:root {
+  /* Brand */
+  --color-brand-primary: #ffffff;
+  --color-brand-secondary: #ffffff;
+  --color-brand-tertiary: #ffffff;
+
+  /* Utility */
+  --color-utility-success: #3ec880;
+  --color-utility-error: #da5922;
+
+  /* Black scale (100 = darkest, 600 = lightest) */
+  --color-black-100: #343536;
+  --color-black-200: #666768;
+  --color-black-300: #b3b4b5;
+  --color-black-400: #e0e0e0;
+  --color-black-500: #f0f0f0;
+  --color-black-600: #f7f8f9;
+
+  /* Alpha white */
+  --color-alpha-white-8: rgba(255, 255, 255, 0.08);
+  --color-alpha-white-16: rgba(255, 255, 255, 0.16);
+  --color-alpha-white-24: rgba(255, 255, 255, 0.24);
+  --color-alpha-white-40: rgba(255, 255, 255, 0.4);
+  --color-alpha-white-64: rgba(255, 255, 255, 0.64);
+  --color-alpha-white-100: rgba(255, 255, 255, 1);
+
+  /* Alpha black */
+  --color-alpha-black-8: rgba(0, 0, 0, 0.08);
+  --color-alpha-black-16: rgba(0, 0, 0, 0.16);
+  --color-alpha-black-24: rgba(0, 0, 0, 0.24);
+  --color-alpha-black-40: rgba(0, 0, 0, 0.4);
+  --color-alpha-black-64: rgba(0, 0, 0, 0.64);
+  --color-alpha-black-100: rgba(0, 0, 0, 1);
+
+  /* Spacing */
+  --spacing-0: 0px;
+  --spacing-2: 2px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-16: 16px;
+  --spacing-24: 24px;
+  --spacing-40: 40px;
+  --spacing-80: 80px;
+
+  /* Font size (px) */
+  --font-size-12: 12px;
+  --font-size-14: 14px;
+  --font-size-16: 16px;
+  --font-size-20: 20px;
+  --font-size-24: 24px;
+  --font-size-28: 28px;
+  --font-size-32: 32px;
+  --font-size-40: 40px;
+  --font-size-48: 48px;
+  --font-size-80: 80px;
+
+  /* Line height (px) */
+  --line-height-16: 16px;
+  --line-height-18: 18px;
+  --line-height-20: 20px;
+  --line-height-24: 24px;
+  --line-height-28: 28px;
+  --line-height-32: 32px;
+  --line-height-40: 40px;
+  --line-height-48: 48px;
+  --line-height-56: 56px;
+  --line-height-88: 88px;
+
+  /* Font weight */
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-black: 900;
+
+  /* Font family */
+  --font-family-figtree: "Figtree", sans-serif;
+}

@@ -1,0 +1,82 @@
+/*
+ * Sideline Fan Design System — brand tokens
+ * Source: Figma "Team Colors" variable collection — one mode per team.
+ * Each mode below is a CSS block keyed by [data-team="..."]. Set data-team on <html>
+ * (or any ancestor) to switch the active team's palette; every --brand-* name is shared
+ * across teams so the semantic layer (sideline-fan-ds.semantics.tokens.css) never has to
+ * know which team is active.
+ *
+ * :root holds the Sideline house brand as the default/fallback when no data-team is set.
+ */
+
+:root,
+[data-team="sideline"] {
+  /* Sideline (default/house brand) */
+  --brand-bg: #101820;
+  --brand-bg-light: #41464c;
+  --brand-interactive: #235b4e;
+  --brand-interactive-light: #597b71;
+  --brand-accent: #c4fa80;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #000000;
+}
+
+[data-team="twins"] {
+  --brand-bg: #002b5c;
+  --brand-bg-light: #32557d;
+  --brand-interactive: #d3114f;
+  --brand-interactive-light: #dc4172;
+  --brand-accent: #d3114f;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #ffffff;
+}
+
+[data-team="bucs"] {
+  --brand-bg: #332f2b;
+  --brand-bg-light: #504c49;
+  --brand-interactive: #a71930;
+  --brand-interactive-light: #9c3c4c;
+  --brand-accent: #ff7900;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #343536;
+}
+
+[data-team="lions"] {
+  --brand-bg: #000000;
+  --brand-bg-light: #292929;
+  --brand-interactive: #0076b6;
+  --brand-interactive-light: #2a7db8;
+  --brand-accent: #b0b7bc;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #343536;
+}
+
+[data-team="mariners"] {
+  --brand-bg: #0c2c56;
+  --brand-bg-light: #425575;
+  --brand-interactive: #005c5c;
+  --brand-interactive-light: #477b7c;
+  --brand-accent: #c4ced4;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #000000;
+}
+
+[data-team="mlb"] {
+  --brand-bg: #1c2f52;
+  --brand-bg-light: #394762;
+  --brand-interactive: #aa273f;
+  --brand-interactive-light: #ab3c52;
+  --brand-accent: #aa273f;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #ffffff;
+}
+
+[data-team="bally-sports"] {
+  --brand-bg: #111111;
+  --brand-bg-light: #222222;
+  --brand-interactive: #d82e20;
+  --brand-interactive-light: #d06153;
+  --brand-accent: #d82e20;
+  --brand-a11y-on-interactive: #ffffff;
+  --brand-a11y-on-accent: #ffffff;
+}

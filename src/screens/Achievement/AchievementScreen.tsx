@@ -5,6 +5,7 @@ import { Illustration, type IllustrationType } from '../../components/Illustrati
 import shadowEllipse from '../../assets/achievement/shadow-ellipse.svg';
 import { contentTransitionClassName, type ScreenTransitionState } from '../screenTransition';
 import { useTilt } from './useTilt';
+import { useConfettiBurst } from './useConfettiBurst';
 import '../../styles/motion.css';
 
 export interface AchievementScreenProps {
@@ -18,9 +19,15 @@ export interface AchievementScreenProps {
   teamLogoAlt: string;
   /** Count of other fans who've earned it. */
   fansEarnedCount: number;
+  /** First time this achievement is opened — celebrate with a confetti burst. */
+  celebrate?: boolean;
   onBack?: () => void;
   transitionState?: ScreenTransitionState;
 }
+
+// Fire as the badge reaches its apex and starts spinning: .achievement-rise's 0.2s
+// delay + 20% of its 2s duration (see styles/motion.css).
+const CONFETTI_DELAY_MS = 600;
 
 const bodyText: React.CSSProperties = {
   margin: 0,
@@ -39,13 +46,15 @@ export function AchievementScreen({
   teamLogo,
   teamLogoAlt,
   fansEarnedCount,
+  celebrate = false,
   onBack,
   transitionState,
 }: AchievementScreenProps) {
   const { onPointerMove: onTiltMove, onPointerLeave: onTiltLeave } = useTilt<HTMLDivElement>();
+  const { canvasRef: confettiCanvasRef, originRef: confettiOriginRef } = useConfettiBurst({ enabled: celebrate, delayMs: CONFETTI_DELAY_MS });
 
   return (
-    <div style={{ height: '100%', background: 'var(--background-surface)' }}>
+    <div style={{ position: 'relative', height: '100%', background: 'var(--background-surface)' }}>
       <div
         data-name="content"
         className={contentTransitionClassName(transitionState)}
@@ -118,6 +127,7 @@ export function AchievementScreen({
                 on their own node so none overwrites another's transform. See
                 .achievement-rise in styles/motion.css. */}
             <div
+              ref={confettiOriginRef}
               onPointerMove={onTiltMove}
               onPointerLeave={onTiltLeave}
               style={{ position: 'relative', flexShrink: 0, transformStyle: 'preserve-3d', willChange: 'transform' }}
@@ -208,6 +218,13 @@ export function AchievementScreen({
           </p>
         </div>
       </div>
+      {celebrate && (
+        <canvas
+          ref={confettiCanvasRef}
+          aria-hidden="true"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 2 }}
+        />
+      )}
     </div>
   );
 }

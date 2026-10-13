@@ -27,6 +27,8 @@ export function App() {
   const [transitionState, setTransitionState] = useState<ScreenTransitionState | undefined>(undefined);
   const [guess, setGuess] = useState('');
   const [selectedAchievementId, setSelectedAchievementId] = useState<string | undefined>(undefined);
+  // Whether the currently open achievement is being opened for the first time (confetti).
+  const [celebrateSelected, setCelebrateSelected] = useState(false);
   // Newly earned achievements stay "unseen" (badge + tooltip on Game View) until Profile is opened.
   const [hasUnseenAchievements, setHasUnseenAchievements] = useState(true);
   // Achievements still showing a "New" chip on Profile — each clears once it's opened.
@@ -88,6 +90,7 @@ export function App() {
             onBack={() => navigate('gameView')}
             onSelectAchievement={(achievement) => {
               setSelectedAchievementId(achievement.id);
+              setCelebrateSelected(newAchievementIds.has(achievement.id));
               setNewAchievementIds((ids) => {
                 const next = new Set(ids);
                 next.delete(achievement.id);
@@ -100,6 +103,7 @@ export function App() {
         {current === 'achievement' && (
           <AchievementScreen
             {...((selectedAchievementId && sampleAchievementDetails[selectedAchievementId]) || sampleAchievementScreenProps)}
+            celebrate={celebrateSelected}
             transitionState={transitionState}
             onBack={() => navigate('profile')}
           />

@@ -4,37 +4,64 @@
 /*
  * Sideline Fan Design System — semantic tokens
  * Source: sideline-fanDS--semantics.Light Mode.tokens.json / .Dark Mode.tokens.json,
- * sideline-fanDS--typography.tokens.json (Figma variables)
+ * sideline-fanDS--typography.tokens.json (Figma variables), plus the AP-Design-System
+ * Figma file (gashMT6iF1hYUjdZv5j1Tn) for tokens the JSON exports above never covered
+ * (--outline-neutral-base, --shadow-*, --radius-*, --background-hero-tint,
+ * --background-overlay-desaturate, --background-scrim) — first needed building the
+ * Welcome screen (node 2267:758).
  * Depends on the primitive tokens in sideline-fan-ds.tokens.css and the brand tokens in
  * sideline-fan-ds.brand.tokens.css (both imported above).
  *
  * Three tiers, matching the Figma variable structure:
  *   1. Primitives  (sideline-fan-ds.tokens.css)        — raw color/spacing/type-scale values
  *   2. Brand       (sideline-fan-ds.brand.tokens.css)  — one mode per team, switched via [data-team]
- *   3. Semantic    (--background-*, --foreground-*, --outline-*, --a11y-*, --spacing-*, --text-*)
- *      — mode-aware where relevant, aliases tiers 1 & 2
+ *   3. Semantic    (--background-*, --foreground-*, --outline-*, --a11y-*, --spacing-*,
+ *      --text-*, --radius-*, --shadow-*) — mode-aware where relevant, aliases tiers 1 & 2.
+ *      --radius-* has no dedicated primitive scale — it aliases --spacing-* directly
+ *      (radius-lrg -> spacing-16, radius-pill -> spacing-80, etc.), per AP-Design-System.
  *
- * Usage: :root holds Light Mode values by default. Add data-theme="dark" to <html>
- * (or any ancestor) to switch to Dark Mode overrides. data-team and data-theme are
- * independent — any team renders correctly in either mode. --text-*, --spacing-*, and
- * --a11y-* are mode-independent.
+ * IMPORTANT — why brand-dependent tokens live under [data-team], not :root:
+ * `--semantic: var(--brand-x)` declared once at :root does NOT re-resolve for a
+ * descendant that overrides --brand-x on a nested [data-team="..."] element — CSS
+ * custom properties compute their substituted value once, at the element where they're
+ * declared, then inherit that already-resolved value unchanged. Overriding --brand-x
+ * deeper in the tree has no effect on a --semantic that was only ever declared higher
+ * up. So every semantic token that aliases a --brand-* value is declared under the
+ * `[data-team]` attribute-exists selector instead — that makes it recompute at
+ * whichever element actually carries data-team, including nested overrides, not just
+ * :root. (Verified: see the CSS custom property indirection behavior in any spec
+ * reference on inheritance of custom properties.)
+ *
+ * Usage:
+ *   - :root holds Light Mode, non-brand values. [data-theme="dark"] overrides the
+ *     handful of non-brand tokens that differ by theme.
+ *   - [data-team] holds brand-dependent tokens that don't vary by theme (e.g.
+ *     --background-interactive). Matches :root by default (the decorator sets
+ *     data-team on <html>) and re-matches on any nested override.
+ *   - [data-team][data-theme="dark"] holds brand-dependent tokens that DO vary by
+ *     theme (e.g. --background-surface, which is a flat primitive in light mode but
+ *     the team's brand-bg in dark mode). If you override data-team on a nested
+ *     element, you MUST also set data-theme on that same element (repeating the
+ *     inherited value if it isn't changing) for these to resolve correctly — see
+ *     src/screens/Welcome/WelcomeScreen.stories.tsx for the pattern.
+ *   - --text-*, --spacing-*, --radius-*, --shadow-* are mode- and team-independent.
  */
 
 :root {
-  /* Background — Light Mode (default) */
+  /* Background — Light Mode, non-brand */
   --background-surface: var(--color-alpha-white-100);
   --background-surface-light: var(--color-black-400);
-  --background-interactive: var(--brand-interactive);
-  --background-interactive-light: var(--brand-interactive-light);
   --background-interactive-disabled: var(--color-black-400);
-  --background-accent: var(--brand-accent);
   --background-muted-light: var(--color-alpha-white-16);
   --background-error: var(--color-utility-error);
   --background-muted-dark: var(--color-alpha-black-16);
+  --background-overlay-desaturate: var(--color-alpha-black-100);
+  --background-scrim: var(--color-alpha-black-40);
+  /* Stronger scrim for legibility gradients over photos (Game View's top-fade) —
+     same alpha-black-64 primitive Figma's own gradient-overlay uses directly. */
+  --background-overlay-strong: var(--color-alpha-black-64);
 
-  /* Foreground — Light Mode (default) */
-  --foreground-link: var(--brand-interactive);
-  --foreground-brand-accent: var(--brand-accent);
+  /* Foreground — Light Mode, non-brand */
   --foreground-light-pr: var(--color-black-100);
   --foreground-light-secondary: var(--color-black-200);
   --foreground-light-disabled: var(--color-black-300);
@@ -43,11 +70,7 @@
   --foreground-dark-disabled: var(--color-alpha-black-24);
   --foreground-error: var(--color-utility-error);
 
-  /* Outline — Light Mode (default) */
-  --outline-interactive: var(--brand-interactive);
-  --outline-interactive-pressed: var(--brand-interactive-light);
-  --outline-interactive-focused: var(--brand-interactive-light);
-  --outline-accent: var(--brand-accent);
+  /* Outline — Light Mode, non-brand */
   --outline-light: var(--color-black-400);
   --outline-light-pressed: var(--color-black-100);
   --outline-light-focused: var(--color-alpha-white-100);
@@ -55,10 +78,7 @@
   --outline-dark-pressed: var(--color-black-100);
   --outline-dark-focused: var(--color-black-100);
   --outline-error: var(--color-utility-error);
-
-  /* A11y — mode-independent */
-  --a11y-on-interactive: var(--brand-a11y-on-interactive);
-  --a11y-on-accent: var(--brand-a11y-on-accent);
+  --outline-neutral-base: var(--color-alpha-white-24);
 
   /* Spacing — mode-independent */
   --spacing-none: var(--spacing-0);
@@ -92,6 +112,10 @@
   --text-heading-s-line-height: var(--line-height-18);
   --text-heading-xs-font-size: var(--font-size-12);
   --text-heading-xs-line-height: var(--line-height-16);
+  /* Figma specs this at Proxima Nova — see the font-family note in
+     sideline-fan-ds.tokens.css for why it's Figtree here instead. */
+  --text-heading-xxs-font-size: var(--font-size-10);
+  --text-heading-xxs-line-height: var(--line-height-12);
 
   /* Typography — body (aliases heading sizes, per source file) */
   --text-body-l-font-size: var(--text-heading-m-font-size);
@@ -107,20 +131,71 @@
   --text-button-l-line-height: var(--line-height-24);
   --text-button-m-font-size: var(--text-heading-s-font-size);
   --text-button-m-line-height: var(--line-height-20);
+
+  /* Radius — mode-independent (aliases the spacing scale, per AP-Design-System) */
+  --radius-none: var(--spacing-0);
+  --radius-sm: var(--spacing-4);
+  --radius-med: var(--spacing-8);
+  --radius-lrg: var(--spacing-16);
+  --radius-pill: var(--spacing-80);
+
+  /* Shadow — mode-independent (color composed from existing alpha-black primitives) */
+  --shadow-card-high: 0px 16px 24px 0px var(--color-alpha-black-40);
+  --shadow-modal: 0px 16px 24px -8px var(--color-alpha-black-40);
+  --shadow-card-low: 0px 2px 4px var(--color-alpha-black-8);
+  /* Tight lift for a small pill/chip sitting on another surface (e.g. the active tab
+     in Tabs) — not a bound Figma variable there, just a literal effect value. */
+  --shadow-tab: 0px 2px 2px var(--color-alpha-black-24);
+  /* Tooltip lift (Figma: 0/16 blur 12, shadow/card-high color). No spread value so it's
+     valid inside filter: drop-shadow(), which Tooltip uses so the arrow casts it too. */
+  --shadow-tooltip: 0px 16px 12px var(--color-alpha-black-40);
 }
 
 [data-theme="dark"] {
-  /* Background — Dark Mode overrides */
-  --background-surface: var(--brand-bg);
-  --background-surface-light: var(--brand-bg-light);
-  --background-interactive-disabled: var(--brand-bg-light);
-
-  /* Foreground — Dark Mode overrides */
+  /* Foreground — Dark Mode overrides, non-brand */
   --foreground-light-pr: var(--color-alpha-white-100);
   --foreground-light-secondary: var(--color-alpha-white-64);
   --foreground-light-disabled: var(--color-alpha-white-64);
+  /* No light-mode value evidenced yet (only seen on always-dark Background surfaces,
+     e.g. NumberField's empty-state placeholder) — dark-only until that changes.
+     Figma specifies 24% white, which fails WCAG contrast against every team's
+     brand-bg (1.93-2.16:1, need 3:1). First bumped to 40% to clear that — but
+     NumberField's pill is actually filled with brand-bg-light (lighter than
+     brand-bg), and 40% only clears 2 of 7 teams there (2.62-3.63:1). Bumped again
+     to 64% (an existing primitive, already used by --foreground-light-secondary/
+     -disabled) to clear 3:1 against brand-bg-light for every team. */
+  --foreground-inverse-muted: var(--color-alpha-white-64);
 
-  /* Outline — Dark Mode overrides */
+  /* Outline — Dark Mode overrides, non-brand */
   --outline-light: var(--color-alpha-white-16);
   --outline-light-pressed: var(--color-alpha-white-100);
+}
+
+[data-team] {
+  /* Background — brand-dependent, same formula in light & dark */
+  --background-interactive: var(--brand-interactive);
+  --background-interactive-light: var(--brand-interactive-light);
+  --background-accent: var(--brand-accent);
+  --background-hero-tint: var(--brand-bg);
+
+  /* Foreground — brand-dependent */
+  --foreground-link: var(--brand-interactive);
+  --foreground-brand-accent: var(--brand-accent);
+
+  /* Outline — brand-dependent */
+  --outline-interactive: var(--brand-interactive);
+  --outline-interactive-pressed: var(--brand-interactive-light);
+  --outline-interactive-focused: var(--brand-interactive-light);
+  --outline-accent: var(--brand-accent);
+
+  /* A11y — brand-dependent */
+  --a11y-on-interactive: var(--brand-a11y-on-interactive);
+  --a11y-on-accent: var(--brand-a11y-on-accent);
+}
+
+[data-team][data-theme="dark"] {
+  /* Background — Dark Mode overrides, brand-dependent */
+  --background-surface: var(--brand-bg);
+  --background-surface-light: var(--brand-bg-light);
+  --background-interactive-disabled: var(--brand-bg-light);
 }

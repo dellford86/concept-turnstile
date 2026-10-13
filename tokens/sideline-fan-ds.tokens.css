@@ -16,7 +16,20 @@
  * equivalents (900/600/400) so the token is directly usable in `font-weight`.
  *
  * NOTE: only the "Figtree" font-family was carried over from the source file, which
- * also defines Proxima Nova, Poppins, and Barlow.
+ * also defines Proxima Nova, Poppins, and Barlow. The Game View screen's small labels
+ * (trend-chart tooltip, low/high values) spec Proxima Nova specifically — it's a
+ * commercial font (Mark Simonson Studio), not freely licensable like Figtree, and no
+ * legitimate self-hostable package exists. Those labels use Figtree instead rather
+ * than claim a font-family that would silently fail to load (same trap Figtree itself
+ * was in before @fontsource/figtree was added).
+ *
+ * NOTE: font-size-10 / line-height-12 were added for that same Game View small-label
+ * style (Heading/xxs: 10px/12px) — not present in the original typography export.
+ *
+ * NOTE: there is no separate radius primitive scale — the AP-Design-System Figma file's
+ * radius/* semantic tokens (radius-none, radius-sm, radius-med, radius-lrg, radius-pill)
+ * alias the existing spacing/* primitives directly (radius-lrg -> spacing/16, etc.). See
+ * the Radius section in sideline-fan-ds.semantics.tokens.css.
  */
 
 :root {
@@ -64,6 +77,7 @@
   --spacing-80: 80px;
 
   /* Font size (px) */
+  --font-size-10: 10px;
   --font-size-12: 12px;
   --font-size-14: 14px;
   --font-size-16: 16px;
@@ -76,6 +90,7 @@
   --font-size-80: 80px;
 
   /* Line height (px) */
+  --line-height-12: 12px;
   --line-height-16: 16px;
   --line-height-18: 18px;
   --line-height-20: 20px;

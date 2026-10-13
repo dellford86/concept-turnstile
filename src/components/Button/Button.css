@@ -1,0 +1,11 @@
+/* Base background lives here (not inline) so :hover/:active — pseudo-classes, which
+   can't be expressed via inline style props — can override it through the normal CSS
+   cascade instead of needing !important to beat a same-element inline style. */
+.primary-button {
+  background: var(--background-interactive);
+}
+
+.primary-button:hover,
+.primary-button:active {
+  background: var(--background-interactive-light);
+}

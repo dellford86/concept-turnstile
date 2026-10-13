@@ -1,0 +1,337 @@
+/*
+ * Shared motion primitives. `.fade-in-up` plays once on mount; pair with an inline
+ * `animationDelay` per element to stagger a group entering together.
+ */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * Curtain-lift: for Background's team-tint overlay on "arrival" screens (Welcome,
+ * Splash) — starts fully opaque (photo hidden behind the team color) and lifts to its
+ * resting 0.88, like a curtain rising to reveal the stadium. Not applied by default;
+ * Background only plays it when told to via its `animateIn` prop, since most screens
+ * that reuse Background aren't an arrival moment and shouldn't replay this every mount.
+ */
+@keyframes curtain-lift {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.88;
+  }
+}
+
+.curtain-lift {
+  animation: curtain-lift 0.9s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain-lift {
+    animation: none;
+    opacity: 0.88;
+  }
+}
+
+/*
+ * Matchup clash: the two team columns in a matchup card slide in from opposite sides
+ * and "vs" pops once they've arrived — evokes the two teams meeting at midfield rather
+ * than everything just fading up uniformly.
+ */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.slide-in-left {
+  animation: slide-in-left 0.45s ease-out both;
+}
+
+.slide-in-right {
+  animation: slide-in-right 0.45s ease-out both;
+}
+
+.pop-in {
+  animation: pop-in 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-in-left,
+  .slide-in-right,
+  .pop-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * Punch-through: signature entrance for the game-details card — on-brand for
+ * "Turnstile" (a ticket punched/stamped at the gate) rather than a generic slide-up.
+ * Starts slightly scaled down and skewed, snaps past its resting size, settles flat.
+ * Reserve this for a moment that deserves a distinctive flourish; use .fade-in-up for
+ * everything else so it doesn't get diluted into "just another entrance effect."
+ */
+@keyframes punch-through {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) skewX(-6deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) skewX(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) skewX(0deg);
+  }
+}
+
+.punch-through {
+  animation: punch-through 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .punch-through {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * Content fade transition: generic screen-to-screen navigation, not tied to any
+ * specific pair of screens. Fades a screen's *content* only — each screen applies this
+ * to its own content div, never to its Background, so the background photo/tint stays
+ * put and visually continuous while the foreground swaps underneath it. Durations
+ * (0.3s each) are duplicated in App.tsx's EXIT_MS/ENTER_MS — keep both in sync if
+ * these change.
+ */
+@keyframes content-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes content-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.content-fade-out {
+  animation: content-fade-out 0.3s ease-out both;
+}
+
+.content-fade-in {
+  animation: content-fade-in 0.3s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-fade-out,
+  .content-fade-in {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/*
+ * Achievement reveal (AchievementScreen): the badge shoots up out of the bottom edge of
+ * the hero gradient, hangs at its apex while it starts spinning fast, then drifts down
+ * to rest as the spin winds down and its floor shadow fades in underneath.
+ *
+ * Three nodes, three animations, so each gets its own easing curve (a single keyframe
+ * set can only ease all properties together — the fall wants to settle while the spin
+ * wants to decelerate from the apex):
+ *   .achievement-rise  — vertical travel + the clip that hides the badge below the
+ *                        gradient's bottom edge
+ *   .achievement-spin  — Y-axis rotation (child of rise)
+ *   .achievement-shadow-reveal — the floor ellipse
+ * Pointer tilt sits on a wrapper above all of these, so none of them fight it.
+ *
+ * Geometry (from Figma, 200px badge): at rest the badge's bottom is 152px above the
+ * gradient's bottom edge, so translateY(352px) puts its top exactly on that edge. The
+ * clip's bottom inset is (translateY - 152px) at every keyframe, which keeps the clip
+ * line pinned to the gradient edge while the badge moves — it looks like it's emerging
+ * from behind that edge. Revisit these numbers if the hero/gradient sizes change.
+ */
+@keyframes achievement-rise {
+  0% {
+    transform: translateY(352px);
+    clip-path: inset(-50% -50% 200px -50%);
+    animation-timing-function: cubic-bezier(0.15, 0.85, 0.35, 1);
+  }
+  20% {
+    transform: translateY(-48px);
+    clip-path: inset(-50% -50% -200px -50%);
+    animation-timing-function: ease-in-out;
+  }
+  35% {
+    transform: translateY(-44px);
+    clip-path: inset(-50% -50% -200px -50%);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  100% {
+    transform: translateY(0);
+    clip-path: inset(-50% -50% -200px -50%);
+  }
+}
+
+/* Holds still on the way up; kicks in fast at the apex (20%) and decelerates through
+   the fall, landing face-forward (1080deg = 3 full turns). */
+@keyframes achievement-spin {
+  0%,
+  20% {
+    transform: perspective(800px) rotateY(0deg);
+    animation-timing-function: cubic-bezier(0.2, 0.65, 0.3, 1);
+  }
+  100% {
+    transform: perspective(800px) rotateY(1080deg);
+  }
+}
+
+/* Hidden until the fall begins (35%), then grows in as the badge descends onto it. */
+@keyframes achievement-shadow-reveal {
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(0.4);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.achievement-rise,
+.achievement-spin,
+.achievement-shadow-reveal {
+  animation-duration: 2s;
+  animation-delay: 0.2s; /* let the screen's content-fade-in get underway first */
+  animation-fill-mode: both;
+}
+
+.achievement-rise {
+  animation-name: achievement-rise;
+}
+
+.achievement-spin {
+  animation-name: achievement-spin;
+}
+
+.achievement-shadow-reveal {
+  animation-name: achievement-shadow-reveal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-rise,
+  .achievement-spin,
+  .achievement-shadow-reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+/*
+ * Tooltip enter/exit: a short drop-in toward whatever the arrow points at, and a quick
+ * fade back out when auto-dismissed. .tooltip-exit's duration is mirrored in
+ * GameViewScreen's TOOLTIP_EXIT_MS — keep both in sync.
+ */
+@keyframes tooltip-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tooltip-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.tooltip-enter {
+  animation: tooltip-enter 0.25s ease-out both;
+}
+
+.tooltip-exit {
+  animation: tooltip-exit 0.2s ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip-enter,
+  .tooltip-exit {
+    animation: none;
+    transform: none;
+  }
+}

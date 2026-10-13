@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
-import { SpacingSwatch, TokenGrid, TokenSection, TokenSwatch, TokenPage, TypeSample } from './TokenSwatch';
+import { RadiusSwatch, SpacingSwatch, TokenGrid, TokenSection, TokenSwatch, TokenPage, TypeSample } from './TokenSwatch';
 
 const meta: Meta = {
   title: 'Tokens/Semantics',
@@ -105,6 +105,22 @@ export const Spacing: Story = {
           <SpacingSwatch label="spacing-xl" varName="--spacing-xl" />
           <SpacingSwatch label="spacing-xxl" varName="--spacing-xxl" />
         </div>
+      </TokenSection>
+    </TokenPage>
+  ),
+};
+
+export const Radius: Story = {
+  render: () => (
+    <TokenPage>
+      <TokenSection title="Radius (aliases the spacing scale)">
+        <TokenGrid>
+          <RadiusSwatch label="radius-none" varName="--radius-none" />
+          <RadiusSwatch label="radius-sm" varName="--radius-sm" />
+          <RadiusSwatch label="radius-med" varName="--radius-med" />
+          <RadiusSwatch label="radius-lrg" varName="--radius-lrg" />
+          <RadiusSwatch label="radius-pill" varName="--radius-pill" />
+        </TokenGrid>
       </TokenSection>
     </TokenPage>
   ),

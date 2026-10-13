@@ -1,0 +1,17 @@
+/* Hover/focus can't be expressed in inline styles. The whole cell is the hover target
+   (not just the 48px image) so the grow responds anywhere on the tappable slot. */
+.achievement-cell__illustration {
+  display: block;
+  transition: transform 0.2s ease-out;
+}
+
+.achievement-cell:hover .achievement-cell__illustration,
+.achievement-cell:focus-visible .achievement-cell__illustration {
+  transform: scale(1.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-cell__illustration {
+    transition: none;
+  }
+}

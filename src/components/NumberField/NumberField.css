@@ -1,0 +1,5 @@
+/* ::placeholder is a pseudo-element — can't be styled via inline style props. */
+.number-field-input::placeholder {
+  color: var(--foreground-inverse-muted);
+  opacity: 1;
+}

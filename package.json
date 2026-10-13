@@ -4,24 +4,39 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "storybook": "storybook dev -p 6008",
     "build-storybook": "storybook build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:a11y": "test-storybook --url http://localhost:6008",
+    "test:visual": "jest --config jest.config.cjs",
+    "test:visual:update": "jest --config jest.config.cjs -u"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@storybook/addon-a11y": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",
+    "@storybook/test-runner": "^0.24.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^10.11.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
+    "jest": "^30.5.2",
+    "jest-image-snapshot": "^6.5.2",
+    "playwright": "^1.63.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "storybook": "^10.6.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.0",
     "vite": "^8.3.1"
+  },
+  "dependencies": {
+    "@fontsource/figtree": "^5.3.0"
   }
 }

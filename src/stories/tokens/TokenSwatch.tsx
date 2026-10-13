@@ -28,6 +28,23 @@ export function SpacingSwatch({ label, varName }: { label: string; varName: stri
   );
 }
 
+export function RadiusSwatch({ label, varName }: { label: string; varName: string }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontFamily: 'ui-sans-serif, system-ui', fontSize: 12 }}>
+      <div
+        style={{
+          width: 120,
+          height: 48,
+          borderRadius: `var(${varName})`,
+          background: 'var(--brand-interactive)',
+        }}
+      />
+      <div style={{ fontWeight: 600 }}>{label}</div>
+      <code style={{ opacity: 0.7 }}>{varName}</code>
+    </div>
+  );
+}
+
 export function TokenGrid({ children }: { children: React.ReactNode }) {
   return (
     <div

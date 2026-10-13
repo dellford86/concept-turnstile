@@ -1,6 +1,10 @@
 import type { Preview } from '@storybook/react-vite';
 import React, { useEffect } from 'react';
 
+import '@fontsource/figtree/400.css';
+import '@fontsource/figtree/600.css';
+import '@fontsource/figtree/900.css';
+
 import '../tokens/sideline-fan-ds.tokens.css';
 import '../tokens/sideline-fan-ds.brand.tokens.css';
 import '../tokens/sideline-fan-ds.semantics.tokens.css';
@@ -47,6 +51,9 @@ const preview: Preview = {
   ],
   parameters: {
     layout: 'fullscreen',
+    a11y: {
+      test: 'error',
+    },
   },
 };
 

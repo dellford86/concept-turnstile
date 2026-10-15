@@ -335,3 +335,35 @@
     transform: none;
   }
 }
+
+/*
+ * Splash loader: the "dot-flashing" pattern (nzbin's three-dots, codepen.io/nzbin/pen/GGrXbp).
+ * Each 8px accent dot flashes between full color and 20% (fades over the first half of a
+ * 1s run, holds, then plays back in reverse via `alternate`); the dots are staggered 0.5s
+ * apart left to right (see SplashScreen's animationDelay). Under reduced motion the dots
+ * stay solid.
+ */
+@keyframes splash-loader-dot {
+  0% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.splash-loader-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--background-accent);
+  animation: splash-loader-dot 1s linear infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-loader-dot {
+    animation: none;
+  }
+}

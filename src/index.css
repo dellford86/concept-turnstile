@@ -10,3 +10,38 @@ html, body {
 body {
   background: #1a1a1a;
 }
+
+/*
+ * App shell. On desktop the app previews inside a fixed 390x844 phone frame (the Figma
+ * frame size); on phone-width viewports the frame goes away and the app fills the
+ * screen. dvh (with a vh fallback) tracks the visible height as mobile browser bars
+ * show/hide, so bottom content isn't hidden behind them.
+ */
+.app-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-frame {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  border-radius: var(--radius-lrg);
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-frame {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}

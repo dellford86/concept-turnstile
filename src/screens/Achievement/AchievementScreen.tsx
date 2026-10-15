@@ -64,6 +64,8 @@ export function AchievementScreen({
           alignItems: 'center',
           gap: 'var(--spacing-xl)',
           height: '100%',
+          // Scrolls instead of squeezing sections when a short phone can't fit them.
+          overflowY: 'auto',
           padding: 'var(--spacing-lrg)',
           boxSizing: 'border-box',
         }}
@@ -82,10 +84,10 @@ export function AchievementScreen({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            // Figma fixes this at 342x324 inside the 358-wide content column; the extra
-            // height below the hero is intentional breathing room before the logo.
-            width: 342,
-            maxWidth: '100%',
+            // Figma: 342x324 inside the 358-wide content column, i.e. inset 8px a side;
+            // kept as an inset so it tracks the phone's width. The extra height below
+            // the hero is intentional breathing room before the logo.
+            width: 'calc(100% - 16px)',
             height: 324,
             flexShrink: 0,
             paddingBottom: 'var(--spacing-xl)',
@@ -109,15 +111,16 @@ export function AchievementScreen({
             }}
           >
             {/* Full-bleed backdrop: Figma positions it relative to the hero (left -24 /
-                top -80, 390x456), which spans the whole 390 screen width from the top
-                of the content area down to just past the logo's midpoint. */}
+                top -80, 390x456). The hero is inset 24px from each screen edge (16px
+                content padding + 8px card inset), so -24px plus 48px of extra width
+                spans the whole screen at any phone width — 390 in the Figma frame. */}
             <div
               aria-hidden
               style={{
                 position: 'absolute',
                 left: -24,
                 top: -80,
-                width: 390,
+                width: 'calc(100% + 48px)',
                 height: 456,
                 background: 'linear-gradient(to bottom, transparent, var(--background-scrim))',
                 pointerEvents: 'none',
@@ -168,7 +171,6 @@ export function AchievementScreen({
           style={{
             position: 'relative',
             flex: 1,
-            minHeight: 0,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -209,7 +211,7 @@ export function AchievementScreen({
             </p>
           </div>
           {/* flex:1 pushes the fan count down to the bottom of the screen. */}
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', width: '100%' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', width: '100%' }}>
             <p style={{ ...bodyText, color: 'var(--foreground-light-pr)' }}>{description}</p>
             <p style={{ ...bodyText, color: 'var(--foreground-light-secondary)' }}>Last earned: {lastEarned}</p>
           </div>

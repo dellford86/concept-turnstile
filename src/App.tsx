@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { SplashScreen } from './screens/Splash/SplashScreen';
 import { WelcomeScreen } from './screens/Welcome/WelcomeScreen';
 import { sampleWelcomeScreenProps } from './screens/Welcome/sampleData';
 import { QuestionScreen } from './screens/Question/QuestionScreen';
@@ -11,11 +12,13 @@ import { AchievementScreen } from './screens/Achievement/AchievementScreen';
 import { sampleAchievementDetails, sampleAchievementScreenProps } from './screens/Achievement/sampleData';
 import type { ScreenTransitionState } from './screens/screenTransition';
 
-type ScreenName = 'welcome' | 'question' | 'gameView' | 'profile' | 'achievement';
+type ScreenName = 'splash' | 'welcome' | 'question' | 'gameView' | 'profile' | 'achievement';
 
 // Keep in sync with .content-fade-out/.content-fade-in's durations in styles/motion.css.
 const EXIT_MS = 300;
 const ENTER_MS = 300;
+// How long the splash shows before moving on to Welcome (stand-in for real app loading).
+const SPLASH_MS = 2500;
 
 /**
  * Temporary single-flow shell. As more screens are built, this becomes real routing.
@@ -23,7 +26,7 @@ const ENTER_MS = 300;
  * the game's actual home team, not hardcode it.
  */
 export function App() {
-  const [current, setCurrent] = useState<ScreenName>('welcome');
+  const [current, setCurrent] = useState<ScreenName>('splash');
   const [transitionState, setTransitionState] = useState<ScreenTransitionState | undefined>(undefined);
   const [guess, setGuess] = useState('');
   const [selectedAchievementId, setSelectedAchievementId] = useState<string | undefined>(undefined);
@@ -44,19 +47,16 @@ export function App() {
       window.setTimeout(() => setTransitionState(undefined), ENTER_MS);
     }, EXIT_MS);
   }
+  useEffect(() => {
+    const timer = window.setTimeout(() => navigate('welcome'), SPLASH_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#1a1a1a' }}>
-      <div
-        data-team="bucs"
-        data-theme="dark"
-        style={{
-          width: 390,
-          height: 844,
-          borderRadius: 'var(--radius-lrg)',
-          overflow: 'hidden',
-        }}
-      >
+    // Phone-frame preview on desktop, full-screen on phones — see .app-shell/.app-frame in index.css.
+    <div className="app-shell">
+      <div className="app-frame" data-team="bucs" data-theme="dark">
+        {current === 'splash' && <SplashScreen transitionState={transitionState} />}
         {current === 'welcome' && (
           <WelcomeScreen {...sampleWelcomeScreenProps} transitionState={transitionState} onPlay={() => navigate('question')} />
         )}

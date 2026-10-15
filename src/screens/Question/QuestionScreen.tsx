@@ -60,6 +60,8 @@ export function QuestionScreen({
           alignItems: 'center',
           gap: 'var(--spacing-xxl)',
           height: '100%',
+          // Scrolls instead of squeezing sections when a short phone can't fit them.
+          overflowY: 'auto',
           padding: 'var(--spacing-xxl) var(--spacing-xl)',
           boxSizing: 'border-box',
         }}
@@ -74,7 +76,6 @@ export function QuestionScreen({
             justifyContent: 'center',
             gap: 'var(--spacing-xxl)',
             width: '100%',
-            minHeight: 0,
           }}
         >
           <div

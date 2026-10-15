@@ -234,6 +234,8 @@ export function WelcomeScreen({
           alignItems: 'center',
           gap: 'var(--spacing-xxl)',
           height: '100%',
+          // Scrolls instead of squeezing sections when a short phone can't fit them.
+          overflowY: 'auto',
           padding: 'var(--spacing-xxl) var(--spacing-xl)',
           boxSizing: 'border-box',
         }}
@@ -248,7 +250,6 @@ export function WelcomeScreen({
             justifyContent: 'center',
             gap: 'var(--spacing-xl)',
             width: '100%',
-            minHeight: 0,
           }}
         >
           <h1 className="fade-in-up" style={{ ...headingStyle, animationDelay: ENTRANCE_DELAY_HEADER }}>

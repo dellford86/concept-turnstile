@@ -10,8 +10,7 @@ export interface TrendChartProps {
   currentLabel?: string;
   /**
    * Plays a one-time entrance on mount â€” the curve starts flat along the baseline and
-   * rises into its real shape, via the same `d` transition used for ongoing data
-   * updates. Opt-in, same convention as Background's animateIn â€” only screens where
+   * rises into its real shape, via the same tween used for ongoing data updates. Opt-in, same convention as Background's animateIn â€” only screens where
    * this chart is freshly arriving should set it.
    */
   animateIn?: boolean;
@@ -58,6 +57,60 @@ function interpolateY(points: { x: number; y: number }[], fraction: number): num
   return points[points.length - 1]?.y ?? BASELINE_Y;
 }
 
+// Durations/easing of the CSS transitions this chart originally used: 0.9s for the
+// curve reshaping, 1.2s for the "you're here" marker sliding along the axis.
+const CURVE_TWEEN_MS = 900;
+const MARKER_TWEEN_MS = 1200;
+
+/** CSS's `ease` timing function, cubic-bezier(0.25, 0.1, 0.25, 1), as a JS easing curve. */
+function cssEase(t: number): number {
+  const [x1, y1, x2, y2] = [0.25, 0.1, 0.25, 1];
+  const bezier = (u: number, a: number, b: number) => 3 * a * u * (1 - u) ** 2 + 3 * b * u ** 2 * (1 - u) + u ** 3;
+  // Solve x(u) = t for u by bisection (x is monotonic), then return y(u).
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    if (bezier(mid, x1, x2) < t) lo = mid;
+    else hi = mid;
+  }
+  return bezier((lo + hi) / 2, y1, y2);
+}
+
+/**
+ * Animates an array of numbers toward `target` frame by frame. Used instead of CSS
+ * `transition: d` because Safari/WebKit (every iOS browser) doesn't support animating
+ * the SVG `d` property â€” paths would just snap there. Like a CSS transition, a new
+ * target mid-flight continues from wherever the values currently are. `snap` jumps
+ * straight to the target on the next frame.
+ */
+function useTweenedValues(target: number[], durationMs: number, snap = false): number[] {
+  const [values, setValues] = useState(target);
+  const valuesRef = useRef(target);
+  const targetKey = target.join(',');
+
+  useEffect(() => {
+    const from = valuesRef.current;
+    const to = targetKey.split(',').map(Number);
+    if (from.length === to.length && from.every((v, i) => Math.abs(v - to[i]) < 0.01)) return;
+    const instant = snap || from.length !== to.length;
+    const start = performance.now();
+    let frameId = 0;
+    const step = (now: number) => {
+      const progress = instant ? 1 : Math.min(1, (now - start) / durationMs);
+      const eased = cssEase(progress);
+      const next = instant ? to : to.map((v, i) => from[i] + (v - from[i]) * eased);
+      valuesRef.current = next;
+      setValues(next);
+      if (progress < 1) frameId = requestAnimationFrame(step);
+    };
+    frameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameId);
+  }, [targetKey, durationMs, snap]);
+
+  return values;
+}
+
 /**
  * Distribution of guesses from `low` to `high`, with a marker showing where
  * `currentValue` (the viewer's own guess) falls. Fully data-driven â€” `data` is plotted
@@ -81,7 +134,7 @@ export function TrendChart({ data, low, high, currentValue, currentLabel = 'Youâ
   // new spot, not glide there like the ongoing low/high drift and curve reshaping do.
   // React's documented "adjust state during render" pattern: comparing props to state
   // set during a prior render, and updating state synchronously when they differ, lets
-  // this render (the one that actually changes position) paint with transitions off â€”
+  // this render (the one that actually changes position) tell the marker tween to snap â€”
   // a ref read here would trigger react-hooks/refs, since refs aren't meant for render.
   const [prevCurrentValue, setPrevCurrentValue] = useState(currentValue);
   const [justChangedValue, setJustChangedValue] = useState(false);
@@ -111,11 +164,16 @@ export function TrendChart({ data, low, high, currentValue, currentLabel = 'Youâ
 
   // A constant array normalizes to a flat line at the baseline â€” reused as the
   // "not risen yet" state rather than special-casing the geometry.
-  const points = buildPoints(hasEntered ? data : data.map(() => 0));
+  const targetPoints = buildPoints(hasEntered ? data : data.map(() => 0));
+  const animatedYs = useTweenedValues(targetPoints.map((p) => p.y), CURVE_TWEEN_MS);
+  const points = targetPoints.map((p, i) => ({ x: p.x, y: animatedYs[i] ?? p.y }));
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
   const fillPath = `M${PADDING},${BASELINE_Y} L${points.map((p) => `${p.x},${p.y}`).join(' L')} L${PADDING + CHART_WIDTH},${BASELINE_Y} Z`;
 
-  const currentFraction = high === low ? 0.5 : Math.min(1, Math.max(0, (currentValue - low) / (high - low)));
+  const targetFraction = high === low ? 0.5 : Math.min(1, Math.max(0, (currentValue - low) / (high - low)));
+  // The dot, connector and tooltip all derive from this one animated position, so they
+  // stay locked together (and on the curve) while sliding.
+  const [currentFraction] = useTweenedValues([targetFraction], MARKER_TWEEN_MS, justChangedValue);
   const currentX = PADDING + currentFraction * CHART_WIDTH;
   const currentY = interpolateY(points, currentFraction);
   // The tooltip is a plain CSS-positioned div, not part of the SVG's viewBox coordinate
@@ -161,7 +219,6 @@ export function TrendChart({ data, low, high, currentValue, currentLabel = 'Youâ
             borderRadius: 'var(--radius-sm)',
             padding: 'var(--spacing-sm)',
             whiteSpace: 'nowrap',
-            transition: justChangedValue ? 'none' : 'left 1.2s ease',
           }}
         >
           <p
@@ -191,20 +248,18 @@ export function TrendChart({ data, low, high, currentValue, currentLabel = 'Youâ
               <stop offset="100%" style={{ stopColor: 'var(--background-accent)', stopOpacity: 0 }} />
             </linearGradient>
           </defs>
-          <path d={fillPath} fill="url(#trend-chart-fill)" style={{ transition: 'd 0.9s ease' }} />
+          <path d={fillPath} fill="url(#trend-chart-fill)" />
           <path
             d={linePath}
             fill="none"
             stroke="var(--background-accent)"
             strokeWidth={1}
-            style={{ transition: 'd 0.9s ease' }}
           />
           <path
             d={connectorPath}
             fill="none"
             stroke="var(--background-accent)"
             strokeDasharray="2 2"
-            style={{ transition: justChangedValue ? 'none' : 'd 1s ease' }}
           />
         </svg>
 
@@ -222,7 +277,6 @@ export function TrendChart({ data, low, high, currentValue, currentLabel = 'Youâ
             borderRadius: '50%',
             background: 'var(--background-accent)',
             transform: 'translate(-50%, -50%)',
-            transition: justChangedValue ? 'none' : 'left 1.2s ease, top 0.9s ease',
           }}
         />
       </div>

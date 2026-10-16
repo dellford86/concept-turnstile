@@ -171,22 +171,6 @@ export function GameViewScreen({
   return (
     <Background image={backgroundImage} name="bg-img--02">
       <div
-        aria-hidden="true"
-        data-name="gradient-overlay--top"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          // Percentages on an absolutely-positioned element resolve against the
-          // container's actual height, so this scales correctly for any viewport —
-          // unlike margin percentages, which always resolve against width.
-          top: '26.9%',
-          height: '36%',
-          background: 'linear-gradient(to top, var(--background-overlay-strong), transparent)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
         data-name="content"
         className={contentTransitionClassName(transitionState)}
         style={{
@@ -195,6 +179,10 @@ export function GameViewScreen({
           flexDirection: 'column',
           height: '100%',
           boxSizing: 'border-box',
+          // Header + guess + chart + bottom panel need ~637px. On a phone shorter than
+          // that the whole screen scrolls as one piece (the bottom panel itself never
+          // does), so nothing gets squeezed into overlapping.
+          overflowY: 'auto',
         }}
       >
         <GameHeader
@@ -219,102 +207,123 @@ export function GameViewScreen({
           />
         )}
 
-        {/* Flex-grow spacers (weighted to this screen's 844px reference design) let the
-            gaps between sections scale proportionally with whatever height the
-            container actually has, instead of assuming a fixed viewport. */}
-        <div aria-hidden="true" style={{ flex: 103 }} />
-
-        <div
-          data-name="your-attendance-guess"
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-med)' }}
-        >
-          <p
+        {/* Everything between the header and the bottom panel. It takes the leftover
+            height but never shrinks below its own content (header and panel don't
+            shrink either), so a too-short screen scrolls instead of overlapping. Its
+            flex-grow spacers (weighted to the 844px reference design) split the slack
+            between sections and shrink to 0 first. */}
+        <div data-name="top-area" style={{ position: 'relative', flex: '1 0 auto', display: 'flex', flexDirection: 'column' }}>
+          {/* Legibility fade over the photo. Figma: 301px tall, ending exactly at the
+              seam with the bottom panel — so it's pinned to this area's bottom edge
+              rather than placed as a percentage of the screen. Painted first; the
+              sections below are position:relative so they stack above it. */}
+          <div
+            aria-hidden="true"
+            data-name="gradient-overlay--top"
             style={{
-              margin: 0,
-              fontFamily: 'var(--font-family-figtree)',
-              fontWeight: 'var(--font-weight-semibold)',
-              fontSize: 'var(--text-heading-xs-font-size)',
-              lineHeight: 'var(--text-heading-xs-line-height)',
-              color: 'var(--foreground-light-pr)',
-              textTransform: 'uppercase',
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 301,
+              background: 'linear-gradient(to top, var(--background-overlay-strong), transparent)',
+              pointerEvents: 'none',
             }}
+          />
+
+          <div aria-hidden="true" style={{ flex: 103 }} />
+
+          <div
+            data-name="your-attendance-guess"
+            style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-med)' }}
           >
-            Your Attendance Guess
-          </p>
-          {/* Fixed-height slot, sized for the taller of the two variants (NumberField)
-              and vertically centered, so toggling between them never changes this
-              block's own height — nothing below has to reflow when editing starts
-              or ends. */}
-          <div style={{ height: 120, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {isEditingGuess ? (
-              <div
-                style={{ width: '100%' }}
-                onBlur={commitGuessEdit}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') commitGuessEdit();
-                }}
-              >
-                <NumberField value={editGuessValue} onChange={setEditGuessValue} ariaLabel="Edit your attendance guess" autoFocus />
-              </div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <p
-                  style={{
-                    margin: 0,
-                    fontFamily: 'var(--font-family-figtree)',
-                    fontWeight: 'var(--font-weight-black)',
-                    fontSize: 'var(--text-display-50-font-size)',
-                    lineHeight: 'var(--text-display-50-line-height)',
-                    color: 'var(--foreground-light-pr)',
-                    textShadow: 'var(--shadow-card-low)',
+            <p
+              style={{
+                margin: 0,
+                fontFamily: 'var(--font-family-figtree)',
+                fontWeight: 'var(--font-weight-semibold)',
+                fontSize: 'var(--text-heading-xs-font-size)',
+                lineHeight: 'var(--text-heading-xs-line-height)',
+                color: 'var(--foreground-light-pr)',
+                textTransform: 'uppercase',
+              }}
+            >
+              Your Attendance Guess
+            </p>
+            {/* Fixed-height slot, sized for the taller of the two variants (NumberField)
+                and vertically centered, so toggling between them never changes this
+                block's own height — nothing below has to reflow when editing starts
+                or ends. */}
+            <div style={{ height: 120, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {isEditingGuess ? (
+                <div
+                  style={{ width: '100%' }}
+                  onBlur={commitGuessEdit}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') commitGuessEdit();
                   }}
                 >
-                  {formatNumber(hasEditedGuess ? attendanceGuess : displayedGuess)}
-                </p>
-                {!pollClosed && (
-                  <IconButton
-                    icon={<EditIcon />}
-                    aria-label="Edit your attendance guess"
-                    onClick={() => {
-                      setEditGuessValue(String(Math.round(attendanceGuess)));
-                      setIsEditingGuess(true);
+                  <NumberField value={editGuessValue} onChange={setEditGuessValue} ariaLabel="Edit your attendance guess" autoFocus />
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontFamily: 'var(--font-family-figtree)',
+                      fontWeight: 'var(--font-weight-black)',
+                      fontSize: 'var(--text-display-50-font-size)',
+                      lineHeight: 'var(--text-display-50-line-height)',
+                      color: 'var(--foreground-light-pr)',
+                      textShadow: 'var(--shadow-card-low)',
                     }}
-                  />
-                )}
-              </div>
-            )}
+                  >
+                    {formatNumber(hasEditedGuess ? attendanceGuess : displayedGuess)}
+                  </p>
+                  {!pollClosed && (
+                    <IconButton
+                      icon={<EditIcon />}
+                      aria-label="Edit your attendance guess"
+                      onClick={() => {
+                        setEditGuessValue(String(Math.round(attendanceGuess)));
+                        setIsEditingGuess(true);
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
           </div>
+
+          <div aria-hidden="true" style={{ flex: 88 }} />
+
+          <div style={{ position: 'relative' }}>
+            <TrendChart data={liveChartData} low={liveLow} high={liveHigh} currentValue={attendanceGuess} animateIn />
+          </div>
+
+          <div aria-hidden="true" style={{ flex: 16 }} />
         </div>
-
-        <div aria-hidden="true" style={{ flex: 88 }} />
-
-        <div>
-          <TrendChart data={liveChartData} low={liveLow} high={liveHigh} currentValue={attendanceGuess} animateIn />
-        </div>
-
-        {/* Floats independent of flow, centered on the seam where the gradient overlay
-            fades out and the bottom panel's background begins. Positioned as a
-            percentage of container height for the same reason as the gradient above. */}
-        <div data-name="sponsor-container" style={{ position: 'absolute', left: 0, right: 0, top: '60.1%', display: 'flex', justifyContent: 'center' }}>
-          <Sponsor logo={sponsorLogo} name={sponsorName} shadow="modal" />
-        </div>
-
-        <div aria-hidden="true" style={{ flex: 16 }} />
 
         <div
           data-name="bottom-panel"
           style={{
+            position: 'relative',
             display: 'flex',
             flexDirection: 'column',
-            flex: 313,
-            minHeight: 0,
+            // Always its full natural height (stats + feed cards) and never scrolls;
+            // the spacers in the top area absorb any shortfall instead.
+            flexShrink: 0,
             background: 'var(--background-surface)',
-            // Last-resort fallback for a container short enough that stats + the gap +
-            // the cards' fixed height genuinely can't all fit: scroll instead of
-            // overlapping, rather than silently breaking the layout.
-            overflowY: 'auto',
           }}
         >
+          {/* Straddles the seam between the photo and this panel: Figma puts the 48px
+              sponsor 25px above the panel's top edge. Anchoring it to the panel (not to
+              a % of the screen) keeps it on the seam at every height, below the chart
+              line and between the LOW/HIGH labels. */}
+          <div data-name="sponsor-container" style={{ position: 'absolute', left: 0, right: 0, top: -25, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
+            <Sponsor logo={sponsorLogo} name={sponsorName} shadow="modal" />
+          </div>
+
           <div
             data-name="stats"
             style={{
@@ -339,11 +348,6 @@ export function GameViewScreen({
               <p style={statLabelStyle}>Avg Guess</p>
             </div>
           </div>
-
-          {/* Flexible gap: grows to push the cards toward the bottom when the panel
-              has slack, collapses toward 0 instead of forcing an overlap when it
-              doesn't — the cards themselves stay at their natural size either way. */}
-          <div aria-hidden="true" style={{ flex: 1 }} />
 
           <div
             data-name="feed"

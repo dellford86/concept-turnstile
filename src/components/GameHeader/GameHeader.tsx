@@ -36,7 +36,7 @@ export function GameHeader({
   profileBadge = false,
 }: GameHeaderProps) {
   return (
-    <div data-name="rundown-header" style={{ height: 72, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
+    <div data-name="rundown-header" style={{ height: 72, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', padding: '0 16px', width: '100%', boxSizing: 'border-box' }}>
         <button
           type="button"

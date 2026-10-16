@@ -1,4 +1,5 @@
 import homeTeamLogo from '../../assets/welcome/home-team-logo.png';
+import sponsorLogo from '../../assets/welcome/sponsor-logo.png';
 import type { AchievementScreenProps } from './AchievementScreen';
 
 export type AchievementDetails = Omit<AchievementScreenProps, 'onBack' | 'transitionState'>;
@@ -15,6 +16,7 @@ export const sampleAchievementDetails: Record<string, AchievementDetails> = {
     ...team,
     illustration: 'crown',
     title: 'Fan Royalty',
+    sponsor: { logo: sponsorLogo, name: 'Coca-Cola' },
     rarity: 'Rare Achievement',
     description: 'You attended every home game of the season!',
     lastEarned: '12/20/2026 (Today)',

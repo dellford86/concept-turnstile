@@ -2,6 +2,7 @@ import React from 'react';
 import { IconButton } from '../../components/IconButton/IconButton';
 import { ArrowLeftIcon } from '../../components/IconButton/ArrowLeftIcon';
 import { Illustration, type IllustrationType } from '../../components/Illustration/Illustration';
+import { Sponsor } from '../../components/Sponsor/Sponsor';
 import shadowEllipse from '../../assets/achievement/shadow-ellipse.svg';
 import { contentTransitionClassName, type ScreenTransitionState } from '../screenTransition';
 import { useTilt } from './useTilt';
@@ -17,6 +18,8 @@ export interface AchievementScreenProps {
   lastEarned: string;
   teamLogo: string;
   teamLogoAlt: string;
+  /** Sponsor-presented achievement: shows this sponsor's badge in place of the team logo. */
+  sponsor?: { logo: string; name: string };
   /** Count of other fans who've earned it. */
   fansEarnedCount: number;
   /** First time this achievement is opened — celebrate with a confetti burst. */
@@ -45,6 +48,7 @@ export function AchievementScreen({
   lastEarned,
   teamLogo,
   teamLogoAlt,
+  sponsor,
   fansEarnedCount,
   celebrate = false,
   onBack,
@@ -159,11 +163,18 @@ export function AchievementScreen({
             display: 'flex',
             justifyContent: 'center',
             width: '100%',
-            padding: 'var(--spacing-med) var(--spacing-lrg)',
+            // The 48px sponsor badge is 8px taller than the 40px team logo; trimming 4px
+            // of padding top and bottom keeps the row (and everything below it) the
+            // same height, and keeps the badge centered on the gradient's bottom edge.
+            padding: sponsor ? 'var(--spacing-sm) var(--spacing-lrg)' : 'var(--spacing-med) var(--spacing-lrg)',
             boxSizing: 'border-box',
           }}
         >
-          <img src={teamLogo} alt={teamLogoAlt} width={40} height={40} style={{ display: 'block', objectFit: 'cover' }} />
+          {sponsor ? (
+            <Sponsor logo={sponsor.logo} name={sponsor.name} shadow="modal" />
+          ) : (
+            <img src={teamLogo} alt={teamLogoAlt} width={40} height={40} style={{ display: 'block', objectFit: 'cover' }} />
+          )}
         </div>
 
         <div

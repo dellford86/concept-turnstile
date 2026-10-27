@@ -367,3 +367,109 @@
     animation: none;
   }
 }
+
+/*
+ * Game menu (GameMenu): the panel slides in from the left edge while the scrim behind
+ * it fades in; closing plays both in reverse. Exit durations are mirrored in GameMenu's
+ * MENU_EXIT_MS — keep both in sync.
+ */
+@keyframes menu-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menu-overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes menu-panel-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes menu-panel-slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.menu-overlay-enter {
+  animation: menu-overlay-fade-in 0.3s ease-out both;
+}
+
+.menu-overlay-exit {
+  animation: menu-overlay-fade-out 0.25s ease-in both;
+}
+
+.menu-panel-enter {
+  animation: menu-panel-slide-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.menu-panel-exit {
+  animation: menu-panel-slide-out 0.25s ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel-enter,
+  .menu-panel-exit {
+    animation: none;
+    transform: none;
+  }
+}
+
+/*
+ * Post-game message (PostGameMessage): a full-screen card that slides up from the
+ * bottom edge over a fading scrim, and back down when closed. Exit duration is mirrored in
+ * PostGameMessage's EXIT_MS — keep both in sync.
+ */
+@keyframes post-game-msg-slide-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes post-game-msg-slide-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Enter: a long, gentle settle (iOS sheet-style curve) rather than a fast snap. Exit:
+   eases out of rest and accelerates away. The scrim behind reuses .menu-overlay-*. */
+.post-game-msg-enter {
+  animation: post-game-msg-slide-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.post-game-msg-exit {
+  animation: post-game-msg-slide-out 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-game-msg-enter,
+  .post-game-msg-exit {
+    animation: none;
+    transform: none;
+  }
+}

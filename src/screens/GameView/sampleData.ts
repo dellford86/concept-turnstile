@@ -43,3 +43,13 @@ export const sampleAchievementNotice: NonNullable<GameViewScreenProps['achieveme
   title: 'Good job!',
   message: 'Two achievements unlocked!',
 };
+
+/**
+ * Mocked official attendance for the post-game scenario (toggled from the game menu).
+ * Not in the Figma — any plausible count works; a real integration would ingest it
+ * from stadium ops (game loop step 7).
+ */
+export const sampleOfficialAttendance = 52108;
+
+/** Post-game status chip label (Figma wf--game-view--finished). */
+export const sampleFinalStatusLabel = 'Finished';

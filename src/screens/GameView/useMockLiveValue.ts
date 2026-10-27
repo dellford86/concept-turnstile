@@ -11,6 +11,8 @@ export interface MockLiveValueOptions {
   allowNegativeStep?: boolean;
   /** Floor the value won't drop below. */
   min?: number;
+  /** Stops ticking and holds the current value (e.g. once the game is final); resumes when false. */
+  paused?: boolean;
 }
 
 /**
@@ -26,7 +28,9 @@ export function useMockLiveValue(initialValue: number, options: MockLiveValueOpt
     optionsRef.current = options;
   });
 
+  const paused = options.paused ?? false;
   useEffect(() => {
+    if (paused) return;
     let timeoutId: ReturnType<typeof setTimeout>;
 
     function scheduleNext() {
@@ -46,7 +50,7 @@ export function useMockLiveValue(initialValue: number, options: MockLiveValueOpt
 
     scheduleNext();
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [paused]);
 
   return value;
 }

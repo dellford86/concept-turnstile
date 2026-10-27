@@ -41,6 +41,7 @@ export function GameHeader({
         <button
           type="button"
           data-name="menu-cta"
+          aria-label="Open menu"
           onClick={onMenuClick}
           disabled={!onMenuClick}
           style={{

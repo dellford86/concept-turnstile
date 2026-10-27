@@ -8,6 +8,7 @@ import { IconButton } from '../../components/IconButton/IconButton';
 import { EditIcon } from '../../components/IconButton/EditIcon';
 import { NumberField } from '../../components/NumberField/NumberField';
 import { Tooltip } from '../../components/Tooltip/Tooltip';
+import { Button } from '../../components/Button/Button';
 import { useCountdown } from './useCountdown';
 import { useMockLiveValue } from './useMockLiveValue';
 import { useMockTrendData } from './useMockTrendData';
@@ -41,6 +42,8 @@ export interface GameViewScreenProps {
   featuredMessages: FeaturedMessageData[];
   /** Called when an inline edit of the attendance guess is committed (Enter or blur). */
   onGuessChange?: (value: number) => void;
+  /** Header team-logo control — opens the game menu. */
+  onMenuClick?: () => void;
   onViewProfile?: () => void;
   /**
    * Newly earned achievements the user hasn't seen yet. When set, the profile button gets
@@ -48,6 +51,13 @@ export interface GameViewScreenProps {
    * and auto-dismisses after ACHIEVEMENT_TOOLTIP_MS.
    */
   achievementNotice?: { title: string; message: string };
+  /**
+   * Post-game state (Figma wf--game-view--finished, node 2493:1322): the status chip
+   * always shows `statusLabel`, the guess is no longer editable, the poll-closes stat is
+   * dropped, and a "View results" button appears under the guess.
+   */
+  isFinal?: boolean;
+  onViewResults?: () => void;
   transitionState?: ScreenTransitionState;
 }
 
@@ -99,8 +109,11 @@ export function GameViewScreen({
   sponsorName,
   featuredMessages,
   onGuessChange,
+  onMenuClick,
   onViewProfile,
   achievementNotice,
+  isFinal = false,
+  onViewResults,
   transitionState,
 }: GameViewScreenProps) {
   const [tooltipPhase, setTooltipPhase] = useState<'pending' | 'visible' | 'exiting' | 'hidden'>(achievementNotice ? 'pending' : 'hidden');
@@ -132,11 +145,13 @@ export function GameViewScreen({
     }
     setIsEditingGuess(false);
   }
+  // Post-game, no new fans are joining or guessing: freeze the stats and the chart.
   const fansPlaying = useMockLiveValue(initialFansPlaying, {
     minDelayMs: 1500,
     maxDelayMs: 5000,
     minStep: 1,
     maxStep: 6,
+    paused: isFinal,
   });
   const avgGuess = useMockLiveValue(initialAvgGuess, {
     minDelayMs: 2000,
@@ -145,11 +160,13 @@ export function GameViewScreen({
     maxStep: 40,
     allowNegativeStep: true,
     min: 0,
+    paused: isFinal,
   });
   const liveChartData = useMockTrendData(chartData, {
     minDelayMs: 1000,
     maxDelayMs: 2000,
     maxStep: 0.15,
+    paused: isFinal,
   });
   // Low/high track the running min/max guess submitted so far, so they only ever
   // widen (new extremes arriving), and drift slower than the chart's own shape.
@@ -159,12 +176,14 @@ export function GameViewScreen({
     minStep: -80,
     maxStep: -20,
     min: 0,
+    paused: isFinal,
   });
   const liveHigh = useMockLiveValue(high, {
     minDelayMs: 6000,
     maxDelayMs: 12000,
     minStep: 20,
     maxStep: 80,
+    paused: isFinal,
   });
   const displayedGuess = useCountUp(attendanceGuess);
 
@@ -189,9 +208,10 @@ export function GameViewScreen({
           teamLogo={teamLogo}
           teamLogoAlt={teamLogoAlt}
           gameLabel={gameLabel}
-          statusLabel={pollClosed ? statusLabel : undefined}
+          statusLabel={pollClosed || isFinal ? statusLabel : undefined}
           date={date}
           time={time}
+          onMenuClick={onMenuClick}
           onViewProfile={onViewProfile}
           profileBadge={Boolean(achievementNotice)}
         />
@@ -255,7 +275,7 @@ export function GameViewScreen({
                 block's own height — nothing below has to reflow when editing starts
                 or ends. */}
             <div style={{ height: 120, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {isEditingGuess ? (
+              {isEditingGuess && !isFinal ? (
                 <div
                   style={{ width: '100%' }}
                   onBlur={commitGuessEdit}
@@ -280,7 +300,7 @@ export function GameViewScreen({
                   >
                     {formatNumber(hasEditedGuess ? attendanceGuess : displayedGuess)}
                   </p>
-                  {!pollClosed && (
+                  {!pollClosed && !isFinal && (
                     <IconButton
                       icon={<EditIcon />}
                       aria-label="Edit your attendance guess"
@@ -293,9 +313,22 @@ export function GameViewScreen({
                 </div>
               )}
             </div>
+            {isFinal && (
+              // Figma: 16px below the guess number's 72px box. The number is centered in
+              // the 120px slot above, so that's 112px down the slot — pulled up into it
+              // (-16 cancels the gap too), and the -40 bottom margin hands the rest of
+              // the button's height to the spacer below. Label, number and chart then
+              // sit exactly where they do in the live state. Figma's primary button is 48px
+              // tall; Button's default primary padding renders 56.
+              <Button onClick={onViewResults} style={{ height: 48, paddingBlock: 0, marginTop: -16, marginBottom: -40 }}>
+                View results
+              </Button>
+            )}
           </div>
 
-          <div aria-hidden="true" style={{ flex: 88 }} />
+          {/* Post-game, reserves the View results button's overhang so a short phone
+              scrolls rather than letting the button overlap the chart. */}
+          <div aria-hidden="true" style={{ flex: 88, minHeight: isFinal ? 40 : 0 }} />
 
           <div style={{ position: 'relative' }}>
             <TrendChart data={liveChartData} low={liveLow} high={liveHigh} currentValue={attendanceGuess} animateIn />
@@ -335,10 +368,12 @@ export function GameViewScreen({
               flexShrink: 0,
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-sm)', flex: 1 }}>
-              <p style={{ ...statValueStyle, color: 'var(--background-accent)' }}>{pollCloses}</p>
-              <p style={statLabelStyle}>Poll Closes</p>
-            </div>
+            {!isFinal && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-sm)', flex: 1 }}>
+                <p style={{ ...statValueStyle, color: 'var(--background-accent)' }}>{pollCloses}</p>
+                <p style={statLabelStyle}>Poll Closes</p>
+              </div>
+            )}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-sm)', flex: 1 }}>
               <p style={statValueStyle}>{formatNumber(fansPlaying)}</p>
               <p style={statLabelStyle}>Fans Playing</p>

@@ -17,6 +17,6 @@ export const sampleProfileScreenProps: Omit<ProfileScreenProps, 'onBack' | 'tran
     { date: '10/27/2026', opponent: 'MIA', guess: '61,005', outcome: '+3,450' },
     { date: '11/04/2026', opponent: 'WAS', guess: '44,870', outcome: '-12,630' },
     { date: '11/25/2026', opponent: 'DET', guess: '58,200', outcome: '+1,980' },
-    { date: '12/20/2026', opponent: 'NO', guess: '49,615', outcome: '-5,340' },
+    { date: '12/20/2026', opponent: 'NO', guess: '45,678', outcome: '--' },
   ],
 };

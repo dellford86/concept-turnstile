@@ -5,6 +5,8 @@ export interface MockTrendDataOptions {
   maxDelayMs: number;
   /** Max drift per nudged point, in the same normalized units as the data values. */
   maxStep: number;
+  /** Stops reshaping and holds the current curve (e.g. once the game is final); resumes when false. */
+  paused?: boolean;
 }
 
 /**
@@ -20,7 +22,9 @@ export function useMockTrendData(initialData: number[], options: MockTrendDataOp
     optionsRef.current = options;
   });
 
+  const paused = options.paused ?? false;
   useEffect(() => {
+    if (paused) return;
     let timeoutId: ReturnType<typeof setTimeout>;
 
     function scheduleNext() {
@@ -45,7 +49,7 @@ export function useMockTrendData(initialData: number[], options: MockTrendDataOp
 
     scheduleNext();
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [paused]);
 
   return data;
 }

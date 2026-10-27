@@ -60,6 +60,16 @@
   /* Stronger scrim for legibility gradients over photos (Game View's top-fade) —
      same alpha-black-64 primitive Figma's own gradient-overlay uses directly. */
   --background-overlay-strong: var(--color-alpha-black-64);
+  /* Top-edge fade behind text laid over a photo (post-game message hero header:
+     Figma gradient from 80% black to transparent). */
+  --background-overlay-hero-fade: var(--color-alpha-black-80);
+  /* Always-white surface (Figma background/light-primary) — for light cards shown
+     inside an otherwise dark-themed screen, e.g. the post-game message. Never
+     overridden by [data-theme="dark"]. */
+  --background-light-primary: var(--color-alpha-white-100);
+  /* Switch track when off. AP Design System's switch uses #a3a9af; black-300 is the
+     closest neutral on this system's scale. On-state uses --background-interactive. */
+  --background-switch-off: var(--color-black-300);
 
   /* Foreground — Light Mode, non-brand */
   --foreground-light-pr: var(--color-black-100);
@@ -149,6 +159,13 @@
   /* Tooltip lift (Figma: 0/16 blur 12, shadow/card-high color). No spread value so it's
      valid inside filter: drop-shadow(), which Tooltip uses so the arrow casts it too. */
   --shadow-tooltip: 0px 16px 12px var(--color-alpha-black-40);
+  /* Side-panel lift (Figma game-menu container: 0/16 blur 12, 40% black). Same value as
+     --shadow-tooltip today, but a separate role so either can change on its own. */
+  --shadow-panel: 0px 16px 12px var(--color-alpha-black-40);
+
+  /* Blur — mode-independent. No dedicated primitive scale; aliases --spacing-*, same as
+     --radius-*. Behind modal overlays (Figma game-menu: background blur 8). */
+  --blur-overlay: var(--spacing-8);
 }
 
 [data-theme="dark"] {
